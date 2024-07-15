@@ -4160,7 +4160,8 @@ pub const Object = struct {
                         }
 
                         vals[llvm_index] = try o.lowerValue(
-                            (try val.fieldValue(pt, field_index)).toIntern(), pt,
+                            (try val.fieldValue(pt, field_index)).toIntern(),
+                            pt,
                         );
                         fields[llvm_index] = vals[llvm_index].typeOf(&o.builder);
                         if (fields[llvm_index] != struct_ty.structFields(&o.builder)[llvm_index])
@@ -4619,7 +4620,8 @@ pub const Object = struct {
 
             const return_block = try wip.block(1, "Name");
             const this_tag_int_value = try o.lowerValue(
-                (try pt.enumValueFieldIndex(enum_ty, @intCast(field_index))).toIntern(), pt,
+                (try pt.enumValueFieldIndex(enum_ty, @intCast(field_index))).toIntern(),
+                pt,
             );
             try wip_switch.addCase(this_tag_int_value, return_block, &wip);
 
@@ -9750,7 +9752,8 @@ pub const FuncGen = struct {
 
         for (0..enum_type.names.len) |field_index| {
             const this_tag_int_value = try o.lowerValue(
-                (try pt.enumValueFieldIndex(enum_ty, @intCast(field_index))).toIntern(), pt,
+                (try pt.enumValueFieldIndex(enum_ty, @intCast(field_index))).toIntern(),
+                pt,
             );
             try wip_switch.addCase(this_tag_int_value, named_block, &wip);
         }

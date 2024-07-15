@@ -2721,7 +2721,8 @@ pub fn emitLlvmObject(
             .time_report = comp.time_report,
             .sanitize_thread = comp.config.any_sanitize_thread,
             .lto = comp.config.lto,
-        },);
+        },
+    );
 }
 
 fn resolveEmitLoc(

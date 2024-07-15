@@ -966,12 +966,13 @@ pub const File = struct {
         base: File,
         arena: Allocator,
         llvm_object: *LlvmObject,
+        tid: Zcu.PerThread.Id,
         prog_node: std.Progress.Node,
     ) !void {
         return base.comp.emitLlvmObject(arena, base.emit, .{
             .directory = null,
             .basename = base.zcu_object_sub_path.?,
-        }, llvm_object, prog_node);
+        }, llvm_object, tid, prog_node);
     }
 
     pub const C = @import("link/C.zig");

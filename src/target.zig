@@ -572,7 +572,7 @@ pub inline fn backendSupportsFeature(backend: std.builtin.CompilerBackend, compt
             else => false,
         },
         .separate_thread => switch (backend) {
-            else => false,
+            else => true,
         },
     };
 }

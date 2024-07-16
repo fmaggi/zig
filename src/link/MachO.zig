@@ -372,7 +372,7 @@ pub fn flushModule(self: *MachO, arena: Allocator, tid: Zcu.PerThread.Id, prog_n
     const gpa = comp.gpa;
 
     if (self.llvm_object) |llvm_object| {
-        try self.base.emitLlvmObject(arena, llvm_object, prog_node);
+        try self.base.emitLlvmObject(arena, llvm_object, tid, prog_node);
     }
 
     const sub_prog_node = prog_node.start("MachO Flush", 0);

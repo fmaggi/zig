@@ -2408,7 +2408,7 @@ fn flush(comp: *Compilation, arena: Allocator, tid: Zcu.PerThread.Id, prog_node:
                     .sub_path = "dummy",
                 },
             };
-            try emitLlvmObject(comp, arena, default_emit, null, llvm_object, prog_node);
+            try emitLlvmObject(comp, arena, default_emit, null, llvm_object, tid, prog_node);
         }
     }
 }
@@ -2693,6 +2693,7 @@ pub fn emitLlvmObject(
     default_emit: Emit,
     bin_emit_loc: ?EmitLoc,
     llvm_object: *LlvmObject,
+    tid: Zcu.PerThread.Id,
     prog_node: std.Progress.Node,
 ) !void {
     if (build_options.only_c) @compileError("unreachable");
@@ -2700,20 +2701,28 @@ pub fn emitLlvmObject(
     const sub_prog_node = prog_node.start("LLVM Emit Object", 0);
     defer sub_prog_node.end();
 
-    try llvm_object.emit(.{
-        .pre_ir_path = comp.verbose_llvm_ir,
-        .pre_bc_path = comp.verbose_llvm_bc,
-        .bin_path = try resolveEmitLoc(arena, default_emit, bin_emit_loc),
-        .asm_path = try resolveEmitLoc(arena, default_emit, comp.emit_asm),
-        .post_ir_path = try resolveEmitLoc(arena, default_emit, comp.emit_llvm_ir),
-        .post_bc_path = try resolveEmitLoc(arena, default_emit, comp.emit_llvm_bc),
+    const pt: Zcu.PerThread = .{
+        .zcu = comp.module.?,
+        .tid = tid,
+    };
 
-        .is_debug = comp.root_mod.optimize_mode == .Debug,
-        .is_small = comp.root_mod.optimize_mode == .ReleaseSmall,
-        .time_report = comp.time_report,
-        .sanitize_thread = comp.config.any_sanitize_thread,
-        .lto = comp.config.lto,
-    });
+    try llvm_object.emit(
+        pt,
+        .{
+            .pre_ir_path = comp.verbose_llvm_ir,
+            .pre_bc_path = comp.verbose_llvm_bc,
+            .bin_path = try resolveEmitLoc(arena, default_emit, bin_emit_loc),
+            .asm_path = try resolveEmitLoc(arena, default_emit, comp.emit_asm),
+            .post_ir_path = try resolveEmitLoc(arena, default_emit, comp.emit_llvm_ir),
+            .post_bc_path = try resolveEmitLoc(arena, default_emit, comp.emit_llvm_bc),
+
+            .is_debug = comp.root_mod.optimize_mode == .Debug,
+            .is_small = comp.root_mod.optimize_mode == .ReleaseSmall,
+            .time_report = comp.time_report,
+            .sanitize_thread = comp.config.any_sanitize_thread,
+            .lto = comp.config.lto,
+        },
+    );
 }
 
 fn resolveEmitLoc(
